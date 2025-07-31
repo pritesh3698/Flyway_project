@@ -29,5 +29,5 @@ jobs:
           FLYWAY_USER: ${{ secrets.SNOWFLAKE_USER }}
           FLYWAY_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         run: |
-          flyway migrate -configFiles=flyway.conf -user="${FLYWAY_USER}" -password="${FLYWAY_PASSWORD}"
+          flyway migrate -configFiles=config/flyway.conf -user="${FLYWAY_USER}" -password="${FLYWAY_PASSWORD}"
 
