@@ -1,1 +1,30 @@
+name: Flyway Migration to Snowflake
 
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  flyway-migration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flyway CLI
+        run: |
+          curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.3/flyway-commandline-9.22.3-linux-x64.tar.gz | tar xz
+          sudo ln -s $PWD/flyway-9.22.3/flyway /usr/local/bin/flyway
+
+      - name: Run Flyway Migration using flyway.conf
+        env:
+          FLYWAY_USER: ${{ secrets.SNOWFLAKE_USER }}
+          FLYWAY_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        run: |
+          flyway migrate \
+            -configFiles=flyway.conf \
+            -user="${FLYWAY_USER}" \
+            -password="${FLYWAY_PASSWORD}"
