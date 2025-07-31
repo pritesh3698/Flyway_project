@@ -2,8 +2,7 @@ name: Flyway Migration to Snowflake
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -19,12 +18,16 @@ jobs:
           curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.3/flyway-commandline-9.22.3-linux-x64.tar.gz | tar xz
           sudo ln -s $PWD/flyway-9.22.3/flyway /usr/local/bin/flyway
 
-      - name: Run Flyway Migration using flyway.conf
+      - name: Download Snowflake JDBC Driver
+        run: |
+          curl -L -o snowflake-jdbc.jar https://repo1.maven.org/maven2/net/snowflake/snowflake-jdbc/3.13.30/snowflake-jdbc-3.13.30.jar
+          mkdir -p flyway-9.22.3/drivers
+          mv snowflake-jdbc.jar flyway-9.22.3/drivers/
+
+      - name: Run Flyway Migration
         env:
           FLYWAY_USER: ${{ secrets.SNOWFLAKE_USER }}
           FLYWAY_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         run: |
-          flyway migrate \
-            -configFiles=./config/flyway.conf \
-            -user="${FLYWAY_USER}" \
-            -password="${FLYWAY_PASSWORD}"
+          flyway migrate -configFiles=flyway.conf -user="${FLYWAY_USER}" -password="${FLYWAY_PASSWORD}"
+
